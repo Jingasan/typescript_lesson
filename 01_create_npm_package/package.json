@@ -1,0 +1,16 @@
+{
+  "name": "@jingasan/npm_sample",
+  "version": "0.1.0",
+  "description": "npm package sample",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "author": "sample author",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  }
+}
