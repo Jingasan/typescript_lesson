@@ -11,7 +11,7 @@
   "scripts": {
     "build": "run-p build:*",
     "build:esbuild": "tsx esbuild.config.ts",
-    "build:types": "tsc --declaration --emitDeclarationOnly --declarationDir ./dist"
+    "build:types": "tsc"
   },
   "keywords": [],
   "author": "sample author",
