@@ -1,4 +1,5 @@
 import * as S3 from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as fs from "fs";
 
 // 接続先設定（S3のMockであるs3rverを利用）
@@ -153,6 +154,33 @@ const runDeleteObject = async (
   }
 };
 
+// Presigned URLの取得
+const runGetPresignedURL = async (
+  bucketName: string,
+  key: string,
+  json: any
+): Promise<boolean> => {
+  try {
+    const putObjectParam: S3.PutObjectCommandInput = {
+      Bucket: bucketName,
+      Key: key,
+      Body: JSON.stringify(json),
+    };
+    const url = await getSignedUrl(
+      s3client,
+      new S3.PutObjectCommand(putObjectParam),
+      {
+        expiresIn: 3600,
+      }
+    );
+    console.log("Success", url);
+    return true;
+  } catch (err) {
+    console.log("Error", err);
+    return false;
+  }
+};
+
 // S3バケットの削除
 const runDeleteBucket = async (bucketName: string): Promise<boolean> => {
   try {
@@ -207,6 +235,10 @@ const runAll = async () => {
   filelist.forEach(
     async (file: string) => await runDeleteObject(bucketName, file)
   );
+
+  // PresignedURLの取得
+  console.log(">>> Get presigned URL");
+  await runGetPresignedURL(bucketName, filepath, json);
 
   // S3バケットの削除
   console.log(">>> Delete bucket");
