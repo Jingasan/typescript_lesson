@@ -1,4 +1,5 @@
 import * as S3 from "@aws-sdk/client-s3";
+import * as fs from "fs";
 
 // 接続先設定（S3のMockであるs3rverを利用）
 const s3config: S3.S3ClientConfig = {
@@ -70,16 +71,33 @@ const runGetObject = async (
   key: string
 ): Promise<string | undefined> => {
   try {
-    const putObjectParam: S3.GetObjectCommandInput = {
+    const getObjectParam: S3.GetObjectCommandInput = {
       Bucket: bucketName,
       Key: key,
     };
-    const res = await s3client.send(new S3.GetObjectCommand(putObjectParam));
+    const res = await s3client.send(new S3.GetObjectCommand(getObjectParam));
     console.log("Success");
-    return await res.Body.transformToString();
+    return await res.Body?.transformToString();
   } catch (err) {
     console.log("Error", err);
     return undefined;
+  }
+};
+
+// S3バケットへのファイルアップロード
+const runUploadFile = async (bucketName: string): Promise<boolean> => {
+  try {
+    const putObjectParam: S3.PutObjectCommandInput = {
+      Bucket: bucketName,
+      Key: "image.png",
+      Body: fs.createReadStream("image.png"),
+    };
+    const res = await s3client.send(new S3.PutObjectCommand(putObjectParam));
+    console.log("Success", res);
+    return true;
+  } catch (err) {
+    console.log("Error", err);
+    return false;
   }
 };
 
@@ -170,6 +188,10 @@ const runAll = async () => {
   // S3バケットへのオブジェクト作成
   console.log(">>> Put object");
   await runPutObject(bucketName, filepath, json);
+
+  // S3バケットへのファイルアップロード
+  console.log(">>> Upload file");
+  await runUploadFile(bucketName);
 
   // S3バケットからのオブジェクト取得
   console.log(">>> Get object");
